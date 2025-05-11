@@ -31,16 +31,15 @@ const App = () => {
 
   return (
     <div>
-      <h1>Movie Search</h1>
+      <h1>Search Movie</h1>
       <input
         type="text"
-        placeholder="Enter movie name"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
       <button onClick={SearchMovies}>Search</button>
 
-      {error && <p>{error}</p>}
+      {error && <p className="error">{error}</p>}
 
       <div>
         {movies.map((movie) => (
