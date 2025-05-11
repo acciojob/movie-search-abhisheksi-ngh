@@ -1,32 +1,36 @@
-// src/App.js
 import React, { useState } from "react";
-import 'regenerator-runtime/runtime';
 import axios from "axios";
 
 const App = () => {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [error, setError] = useState("");
+  const api = "99eb9fd1";
 
-  const SearchMovies = async () => {
-    if (!query.trim()) return;
-
-    const apiKey = "99eb9fd1";
-    const url = `https://www.omdbapi.com/?s=${query}&apikey=${apiKey}`;
-
-    try {
-      const response = await axios.get(url);
-      if (response.data.Response === "True") {
-        setMovies(response.data.Search);
-        setError("");
-      } else {
-        setMovies([]);
-        setError("Invalid movie name. Please try again.");
-      }
-    } catch (err) {
+  const searchMovies = () => {
+    if (!query.trim()) {
+      setError("Please enter a movie name.");
       setMovies([]);
-      setError("Failed to fetch movies. Please try again.");
+      return;
     }
+
+    const url = `https://www.omdbapi.com/?s=${query}&apikey=${api}`;
+
+    axios
+      .get(url)
+      .then((response) => {
+        if (response.data.Response === "True") {
+          setMovies(response.data.Search);
+          setError("");
+        } else {
+          setMovies([]);
+          setError("Invalid movie name. Please try again.");
+        }
+      })
+      .catch(() => {
+        setMovies([]);
+        setError("Failed to fetch movies. Please try again.");
+      });
   };
 
   return (
@@ -36,23 +40,23 @@ const App = () => {
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        placeholder=""
       />
-      <button onClick={SearchMovies}>Search</button>
-
-      {error && <p className="error">{error}</p>}
-
+      <button onClick={searchMovies}>Search</button>
+      {error === "Invalid movie name. Please try again." && (
+        <p className="error">{error}</p>
+      )}
+      {error === "Failed to fetch movies. Please try again." && (
+        <p>{error}</p>
+      )}
+      {error === "Please enter a movie name." && <p>{error}</p>}
       <div>
         {movies.map((movie) => (
           <div key={movie.imdbID}>
-            <img
-              src={
-                movie.Poster !== "N/A"
-                  ? movie.Poster
-                  : "https://via.placeholder.com/150"
-              }
-              alt={movie.Title}
-            />
-            <p>{movie.Title} ({movie.Year})</p>
+            <img src={movie.Poster} alt={movie.Title} />
+            <h3>
+              {movie.Title} ({movie.Year})
+            </h3>
           </div>
         ))}
       </div>
